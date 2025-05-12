@@ -1,2 +1,57 @@
 # Galaxy-Rotation-Curve-Fitting
-Galaxy-Rotation-Curve-Fitting
+Galaxy Rotation Curve Fitting Program (v4.2) 
+On a cluster, this program takes about 1 hour to finish running with 20 cores.
+
+This Python program is designed to fit theoretical galaxy rotation curves to observational data using a dark matter halo model combined with a stellar disk. The primary objective is to estimate the best-fit parameters of both components for a set of spiral galaxies using data from Sofue (1999). The code is modular, leverages scientific libraries, and supports parallel processing to improve performance on large parameter spaces.
+
+Overview
+The script loops over a set of target galaxies and performs five main tasks for each:
+
+Load rotation curve data.
+
+Run initial parameter optimization using deterministic methods.
+
+Perform a brute-force grid search over the parameter space.
+
+Apply MCMC sampling to obtain posterior distributions of the parameters.
+
+Generate plots and save results for further analysis.
+
+Input and Output
+Input: Each galaxy has a corresponding .dat file containing observed circular velocities as a function of galactocentric radius. These are stored in a directory named ./input.
+
+Output: The results (fitted parameters, plots, corner diagrams) are saved under ./output_4, with subfolders for figures in PNG and PDF format.
+
+Galaxy and Model Description
+The galaxies are defined by ID (e.g., 1097, 1365, etc.) and their known stellar disk masses in solar masses. The disk is modeled using an exponential mass distribution, while the dark matter halo is modeled with a Navarro-Frenk-White (NFW) profile, commonly used in cosmology.
+
+Key Components and Methods
+Disk Velocity (vd): Computes the circular velocity contribution from the stellar disk using Bessel function relations derived from an exponential disk model.
+
+Halo Velocity (v_halo): Implements the analytic expression for velocity based on the NFW profile.
+
+Chi-Squared Function: Quantifies how well the model matches the observational data by summing the squared residuals, normalized by the velocity uncertainties.
+
+Optimization Steps
+Initial Minimization: Uses the L-BFGS-B algorithm from scipy.optimize with physical bounds to find a rough minimum in chi-squared.
+
+Brute Force Grid Search: Applies scipy.optimize.brute to scan a 3D parameter grid (disk scale length, halo mass, halo scale radius), followed by a local refinement using fmin. This step is parallelized with 20 CPU cores for speed.
+
+MCMC Sampling: Once a good initial guess is found, the script uses the emcee package to perform Markov Chain Monte Carlo sampling of the parameter space. This gives a full posterior distribution and allows uncertainty estimation. The MCMC is run with 20 walkers over 50,000 steps each (1 million samples in total), using 20 CPU cores.
+
+Visualization and Reporting
+Corner Plots: Show the posterior distribution and parameter correlations using the corner library. These are saved in both PNG and PDF format.
+
+Rotation Curve Plot: The observed data and the individual model components (disk, halo, total) are plotted together for visual inspection.
+
+Parameter Output: The best-fit parameters and minimized chi-squared value are saved in a text file for each galaxy.
+
+Technical Notes
+The gravitational constant G is defined in astrophysical units (kpc * (km/s)² / M_sun).
+
+Velocity uncertainties are assumed to be constant (0.5 km/s) for all data points.
+
+Several matplotlib options are customized for scientific-quality plots, including LaTeX-style fonts and high-resolution figure output.
+
+Parallelization
+The code uses Python's multiprocessing module to parallelize both the brute-force search and the MCMC sampling. This drastically reduces runtime when fitting multiple models or sampling high-dimensional parameter spaces.
