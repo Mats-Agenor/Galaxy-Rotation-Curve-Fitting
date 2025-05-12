@@ -1,0 +1,4 @@
+a_disco: 8.7954 kpc
+M_halo: 1.8665e+10 M_sun
+r_s: 0.8578 kpc
+Chi²: 932701.6280
